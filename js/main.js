@@ -1,4 +1,5 @@
 import ipads from '../data/ipads.js'
+import navigations from '../data/navigations.js'
 
 //// 장바구니!
 // 1. 장바구니 아이콘 클릭하면 드롭다운 메뉴가 나타나도록.
@@ -143,3 +144,36 @@ ipads.forEach(function (ipad) {
     `
     itemsEl.append(itemEl)
 })
+
+
+//// Footer의 navigations 데이터를 js에서 가져와서 html에 넣기
+const navigationsEl = document.querySelector('footer .navigations')
+navigations.forEach(function (nav) {
+  const mapEl = document.createElement('div')
+  mapEl.classList.add('map')
+  
+  let mapList = ''
+  nav.maps.forEach(function (map) {
+    mapList += /* html */ `
+      <li>
+        <a href="${map.url}">${map.name}</a>
+      </li>
+    `
+  })
+
+  mapEl.innerHTML = /* html */`
+    <h3>
+      <span class="text">${nav.title}</span>
+    </h3>
+    <ul>
+      ${mapList}
+    </ul>
+  `
+
+  navigationsEl.append(mapEl)
+})
+
+
+//// Footer의 Copyright 문구에 올해 년도 표시하기.
+const thisYearEl = document.querySelector('span.this-year')
+thisYearEl.textContent = new Date().getFullYear()
