@@ -35,7 +35,7 @@ function hideBasket() {
 }
 
 
-//// 헤더 검색!
+//// 검색!
 // 1. 검색아이콘serach-starter 클릭시, 검색바 보이기
 // 2. 닫기아이콘search-closer 또는 배경그림자shadow 클릭시, 검색바 숨기기
 // 3. 검색바가 나타나면 더이상 스크롤 되지 않도록 하기
@@ -55,12 +55,15 @@ const searchInputEl = searchWrapEl.querySelector('input')
 const searchDelayEls = [...searchWrapEl.querySelectorAll('li')] // 전개연산자를 사용하는 얕은복사
 
 searchStarterEl.addEventListener('click', showSearch)
-searchCloserEl.addEventListener('click', hideSearch)
+searchCloserEl.addEventListener('click', function (event) {
+  event.stopPropagation() // 닫기버튼을 클릭했을때, click 이벤트가 부모를 거쳐서 상위요소로 전파되는 것을 정지. 따라서 닫기 버튼을 클릭한 것이 textfiled를 클릭한것이 아니게 됨.
+  hideSearch()
+})
 searchShadowEl.addEventListener('click', hideSearch)
 
 function showSearch() {
   headerEl.classList.add('searching')
-  document.documentElement.classList.add('fixed')
+  stopScroll()
   headerMenuEls.reverse().forEach(function (el, index) {
     el.style.transitionDelay = index * .4 / headerMenuEls.length + 's'
   })
@@ -73,7 +76,7 @@ function showSearch() {
 }
 function hideSearch() {
   headerEl.classList.remove('searching')
-  document.documentElement.classList.remove('fixed')
+  playScroll()
   headerMenuEls.reverse().forEach(function (el, index) {
     el.style.transitionDelay = index * .4 / headerMenuEls.length + 's'
   })
@@ -84,6 +87,73 @@ function hideSearch() {
   searchInputEl.value = ''
 }
 
+function playScroll() {
+  document.documentElement.classList.remove('fixed')
+}
+function stopScroll() {
+  document.documentElement.classList.add('fixed')
+}
+
+
+//// 헤더 메뉴 토글!
+const menuStarterEl = document.querySelector('header .menu-starter')
+menuStarterEl.addEventListener('click', function () {
+  if (headerEl.classList.contains('menuing')) {
+    headerEl.classList.remove('menuing')
+    searchInputEl.value = ''
+    playScroll()
+  } else {
+    headerEl.classList.add('menuing')
+    stopScroll()
+  }
+})
+
+
+//// 헤더 검색!
+const searchTextfield = document.querySelector('header .textfield')
+const searchCancleEl = document.querySelector('header .search-canceler')
+searchTextfield.addEventListener('click', function () {
+  headerEl.classList.add('searching--mobile')
+  searchInputEl.focus()
+})
+searchCancleEl.addEventListener('click', function () {
+  headerEl.classList.remove('searching--mobile')
+})
+
+// [데스크탑+searching]에서 [모바일]로 될 때, searching 없애기
+// [모바일+searching--mobile]에서 [데스크탑]으로 될때, seaching-mobile 없애기
+window.addEventListener('resize', function () {
+  if (this.window.innerWidth <= 740) {
+    headerEl.classList.remove('searching')
+  } else {
+    headerEl.classList.remove('searching--mobile')
+  }
+})
+
+//// Navigation의 menu-toggler를 선택했을때, menu가 나타나도록 하기.
+// Navigation이 아닌 다른 부분을 선택했을때, menu가 닫히도록 하기.
+const navEl = document.querySelector('nav')
+const navMenuToggleEl = navEl.querySelector('.menu-toggler')
+const navMenuShadowEl = navEl.querySelector('.shadow')
+
+navMenuToggleEl.addEventListener('click', function () {
+  if (navEl.classList.contains('menuing')) {
+    hideNavMenu()
+  } else {
+    showNavMenu()
+  }
+})
+navEl.addEventListener('click', function (event) {
+  event.stopPropagation()
+})
+navMenuShadowEl.addEventListener('click', hideNavMenu)
+window.addEventListener('click', hideNavMenu)
+function showNavMenu() {
+  navEl.classList.add('menuing')
+}
+function hideNavMenu() {
+  navEl.classList.remove('menuing')
+}
 
 //// 요소의 가시성 관찰
 // .info가 화면에 보일때, 아래에서 위로 올라오며 보이도록 효과주기.
